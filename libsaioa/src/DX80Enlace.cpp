@@ -26,6 +26,7 @@ void DX80Enlace::Configure (string a){
 	dx.Configure();
   pma = atoi(Env::getInstance()->GetValue("pesomaximo").data());
 	offsetpeso = atoi(Env::getInstance()->GetValue("offsetpeso").data());
+	precisionpesada=atoi(Env::getInstance()->GetValue("precisionpesada").data());
 }
 /**
  * res = 0 correcto res != error
@@ -85,10 +86,10 @@ int DX80Enlace::VerificaTrama (char *buffer){
 
 	dx.setIsOKMaster(true);
 
-	dx.setInput1(Redondea((unsigned short)(256* (unsigned char) buffer[1] + (unsigned char) buffer[0])));
-	dx.setInput2(Redondea((unsigned short)(256* (unsigned char) buffer[3] + (unsigned char) buffer[2])));
-	dx.setInput3(Redondea((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4])));
-	dx.setInput4(Redondea((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6])));
+	dx.setInput1((unsigned short)(256* (unsigned char) buffer[1] + (unsigned char) buffer[0]));
+	dx.setInput2((unsigned short)(256* (unsigned char) buffer[3] + (unsigned char) buffer[2]));
+	dx.setInput3((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4]));
+	dx.setInput4((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6]));
 	log.info("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
 	int res = CalculaPeso();
 
@@ -107,7 +108,6 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	log.debug("%s: %s",__FILE__, "Fin de funcion VerificaTrama");
 	return res;
 }
-
 
 
 /**
@@ -129,7 +129,7 @@ int DX80Enlace::CalculaPeso(){
 
 	//Finalmente se hace el escalado
 	float aux =  ((float)dx.getInput1() * (float)20)/ (float)65535 ; //pasar a Amperios
-  dx.setPeso1((((float)pma * aux)/16.0) - (float)offsetpeso);
+  dx.setPeso1(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
   aux =  ((float)dx.getInput2() * (float)20)/ (float)65535 ;
   dx.setPeso2((((float)pma * aux)/16.0) - (float)offsetpeso);
@@ -145,7 +145,12 @@ int DX80Enlace::CalculaPeso(){
 
 int DX80Enlace::Redondea(int num)
 {
-     int rem = num % 100;
-     return rem >= 5 ? (num - rem + 10) : (num - rem);
+    if (precisionpesada == 0)
+      return num;
+    else {
+      int rem = (num % precisionpesada);
+      return ((rem >= precisionpesada/2 )? (num - rem + precisionpesada) : (num - rem));
+    }
+
 }
 } /* namespace container */

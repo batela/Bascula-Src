@@ -33,6 +33,7 @@ private:
 	Config *cfg;
 	int pma;
 	int offsetpeso;
+	int precisionpesada;
 
 };
 
