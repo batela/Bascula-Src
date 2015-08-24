@@ -226,6 +226,7 @@ int main(int argc, char **argv) {
 	}
 	else{
 		dx80->Configure("");
+
 		MODBUSPuerto *dxPort = new MODBUSPuerto(Env::getInstance()->GetValue("puertodx80"), 19200);
 		MODBUSExplorador 	*exBSCL		= new MODBUSExplorador (dx80,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
 		pthread_create( &idThPesaje, NULL, PesaContainerRadio,exBSCL);
