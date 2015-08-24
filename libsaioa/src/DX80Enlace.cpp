@@ -85,10 +85,10 @@ int DX80Enlace::VerificaTrama (char *buffer){
 
 	dx.setIsOKMaster(true);
 
-	dx.setInput1((unsigned short)(256* (unsigned char) buffer[1] + (unsigned char) buffer[0]));
-	dx.setInput2((unsigned short)(256* (unsigned char) buffer[3] + (unsigned char) buffer[2]));
-	dx.setInput3((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4]));
-	dx.setInput4((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6]));
+	dx.setInput1(Redondea((unsigned short)(256* (unsigned char) buffer[1] + (unsigned char) buffer[0])));
+	dx.setInput2(Redondea((unsigned short)(256* (unsigned char) buffer[3] + (unsigned char) buffer[2])));
+	dx.setInput3(Redondea((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4])));
+	dx.setInput4(Redondea((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6])));
 	log.info("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
 	int res = CalculaPeso();
 
@@ -145,7 +145,7 @@ int DX80Enlace::CalculaPeso(){
 
 int DX80Enlace::Redondea(int num)
 {
-     int rem = num % 10;
+     int rem = num % 100;
      return rem >= 5 ? (num - rem + 10) : (num - rem);
 }
 } /* namespace container */
