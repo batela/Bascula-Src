@@ -99,6 +99,10 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	if (res != 0){
 	  cmX = (dx.getPeso1() + (-1)* dx.getPeso2() + (-1)*dx.getPeso3() + dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
 	  cmY = (dx.getPeso1() + dx.getPeso2() + (-1)*dx.getPeso3() + (-1)*dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
+	  if (cmX > 1) cmX = 1;
+	  if (cmY > 1) cmY = 1;
+	  if (cmX < -1) cmX = -1;
+	  if (cmY < -1) cmY = -1;
 	}
 	dx.setPeso(res);
 	dx.setCMX(cmX*100);
