@@ -27,6 +27,7 @@ void DX80Enlace::Configure (string a){
   pma = atoi(Env::getInstance()->GetValue("pesomaximo").data());
 	offsetpeso = atoi(Env::getInstance()->GetValue("offsetpeso").data());
 	precisionpesada=atoi(Env::getInstance()->GetValue("precisionpesada").data());
+
 }
 /**
  * res = 0 correcto res != error
@@ -132,13 +133,13 @@ int DX80Enlace::CalculaPeso(){
   dx.setPeso1(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
   aux =  ((float)dx.getInput2() * (float)20)/ (float)65535 ;
-  dx.setPeso2((((float)pma * aux)/16.0) - (float)offsetpeso);
+  dx.setPeso2(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
   aux =  ((float)dx.getInput3() * (float)20)/ (float)65535 ;
-  dx.setPeso3((((float)pma * aux)/16.0) - (float)offsetpeso);
+  dx.setPeso3(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
   aux =  ((float)dx.getInput4() * (float)20)/ (float)65535 ;
-  dx.setPeso4((((float)pma * aux)/16.0) - (float)offsetpeso);
+  dx.setPeso4(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
 	return (dx.getPeso1() + dx.getPeso2() +dx.getPeso3() + dx.getPeso4());
 }
@@ -148,7 +149,7 @@ int DX80Enlace::Redondea(int num)
     if (precisionpesada == 0)
       return num;
     else {
-      int rem = (num % precisionpesada);
+      int rem = abs (num % precisionpesada);
       return ((rem >= precisionpesada/2 )? (num - rem + precisionpesada) : (num - rem));
     }
 
