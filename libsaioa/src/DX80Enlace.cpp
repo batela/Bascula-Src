@@ -43,6 +43,7 @@ int DX80Enlace::analizaTrama (char *buffer,int tipo){
 	}
 	else if (tipo == 1) {
 	  VerificaEstadoRadio(buffer);
+	  //dx.setIsOKMaster(false);
 	}
 
 	log.debug("%s: %s",__FILE__, "Fin de funcion AnalizaTrama");
@@ -91,22 +92,26 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	dx.setInput2((unsigned short)(256* (unsigned char) buffer[3] + (unsigned char) buffer[2]));
 	dx.setInput3((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4]));
 	dx.setInput4((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6]));
+
 	log.info("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
 	int res = CalculaPeso();
 
 	float cmX = 0;
+
 	float cmY = 0;
 	if (res != 0){
-	  cmX = (dx.getPeso1() + (-1)* dx.getPeso2() + (-1)*dx.getPeso3() + dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
-	  cmY = (dx.getPeso1() + dx.getPeso2() + (-1)*dx.getPeso3() + (-1)*dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
-	  if (cmX > 1) cmX = 1;
-	  if (cmY > 1) cmY = 1;
-	  if (cmX < -1) cmX = -1;
-	  if (cmY < -1) cmY = -1;
+	  cmX = (float)(dx.getPeso1() + (-1)* dx.getPeso2() + (-1)*dx.getPeso3() + dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
+	  cmY = (float)(dx.getPeso1() + dx.getPeso2() + (-1)*dx.getPeso3() + (-1)*dx.getPeso4()) / (dx.getPeso1() + dx.getPeso2() + dx.getPeso3() + dx.getPeso4());
+	  if ((int)cmX >= (int)1) cmX = 1;
+	  if ((int)cmY >= (int)1) cmY = 1;
+	  if ((int)cmX <= (int)-1) cmX = -1;
+	  if ((int)cmY <= (int)-1) cmY = -1;
+
 	}
-	dx.setPeso(res);
 	dx.setCMX(cmX*100);
 	dx.setCMY(cmY*100);
+	dx.setPeso(res);
+
 
 	log.debug("%s: %s %d Pesos individuales : %.1f - %.1f - %.1f - %.1f",__FILE__, "Peso calculado: " , res, dx.getPeso1() , dx.getPeso2() , dx.getPeso3() , dx.getPeso4());
 	log.debug("%s: %s %.1f %s %.1f",__FILE__, "Centro de Masas X: " , cmX, " Y: ", cmY);

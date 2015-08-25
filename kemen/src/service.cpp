@@ -200,6 +200,7 @@ void service_resource::getLastData(string &data)
 
 	std::cout << "getLastData.... "<< std::endl;
 
+
 	char raw[256];
 	char now [20];
 	time_t rawtime;
@@ -220,7 +221,15 @@ void service_resource::getLastData(string &data)
 	char okTW4 = ((dx80->getDX()->getIsOKInput4())==true)?'F':'V';
   char fijo =((dx80->getDX()->getIsFijo())==true)?'F':'V';
   int pesoValido = dx80->getDX()->getPesoValido();
-	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),dx80->getDX()->getCMX(),dx80->getDX()->getCMY(),okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido);
+  int cmX = dx80->getDX()->getCMX() ;
+  int cmY = dx80->getDX()->getCMY();
+  if (cmX > 100) cmX = 100;
+  if (cmY > 100) cmY = 100;
+  if (cmX < -100) cmX = -100;
+  if (cmY < -100) cmY = -100;
+
+  printf (">>>>>>>>>>>>>>>>>>>Centros de masa %d %d\n",dx80->getDX()->getCMX(),dx80->getDX()->getCMY());
+	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido);
 	data =  raw;
 	std::cout << "Enviado: " << data << std::endl;
 }

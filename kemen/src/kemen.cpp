@@ -191,7 +191,6 @@ int main(int argc, char **argv) {
 	//log4cpp::PropertyConfigurator::configure( Env::getInstance("/home/batela/bascula/cnf/bascula.cnf")->GetValue("logproperties") );
 
 	log4cpp::PropertyConfigurator::configure( Env::getInstance()->GetValue("logproperties") );
-	printf ("1\n");
 	ESTADO estado;
 	DBPesaje db("/home/batela/bascula/db/kemen.db");
 	log.info("%s: %s",__FILE__, "Iniciando aplicacion de gruas...");
