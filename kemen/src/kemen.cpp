@@ -153,7 +153,8 @@ void * PesaContainerRadio (void * exBascula){
 			int peso = ((DX80Enlace*)ex->getEnlace())->getDX()->getPeso();
 			if (((DX80Enlace*)ex->getEnlace())->getDX()->getSigno() !='-'){
 				pesos.push_back(peso);
-				if (pesajes++<= pesajesCorrectos) nanosleep(&tim , &tim2);
+				if (pesajes++<= pesajesCorrectos)
+				  nanosleep(&tim , &tim2);
 			}
 		}
 		//Actualizamos la base de datos
@@ -182,6 +183,52 @@ void * PesaContainerRadio (void * exBascula){
 	return 0;
 }
 
+
+
+
+void * AlmacenaPesada (void * exBascula){
+
+  int pesajesCorrectos = 100;
+  int pesajes     = 0 ;
+  float pesoMedio = 0;
+  int pesoMaximo  = 0;
+  MODBUSExplorador* ex = (MODBUSExplorador *) exBascula;
+  vector<int> pesos;
+  vector<int> pesosC1;
+  vector<int> pesosC2;
+  vector<int> pesosC3;
+  vector<int> pesosC4;
+  struct timespec tim, tim2;
+  tim.tv_sec  = 0;
+  tim.tv_nsec = 100 * 1000000L; //en milisegundos
+  while (true){
+    tim.tv_nsec = 100 * 1000000L;
+    pesos.clear();
+    pesosC1.clear();
+    pesajes = 0;
+
+    log.debug("%s: %s",__FILE__, "Esperando señal de pesado");
+    while (pesando==true && pesajes< pesajesCorrectos && pesajeHecho == false){
+      if (pesajes++ == 0){
+        tim.tv_nsec = 200 * 1000000L;
+        pesos.clear();
+        pesosC1.clear();
+        pesosC2.clear();
+        pesosC3.clear();
+        pesosC4.clear();
+      }
+      pesos.push_back(((DX80Enlace*)ex->getEnlace())->getDX()->getPeso());
+      pesosC1.push_back(((DX80Enlace*)ex->getEnlace())->getDX()->getPeso1());
+      pesosC2.push_back(((DX80Enlace*)ex->getEnlace())->getDX()->getPeso2());
+      pesosC3.push_back(((DX80Enlace*)ex->getEnlace())->getDX()->getPeso3());
+      pesosC4.push_back(((DX80Enlace*)ex->getEnlace())->getDX()->getPeso4());
+      nanosleep(&tim , &tim2);
+    }
+    //Esperamos por defecto 100ms
+    nanosleep(&tim , &tim2);
+  }
+  return 0;
+}
 
 int main(int argc, char **argv) {
 
@@ -259,7 +306,7 @@ int main(int argc, char **argv) {
 				case ESPERA_PALPADORES_NO_APOYO:
 					log.info("%s: %s",__FILE__, "Proceso de pesaje en: ESPERA_PALPADORES_NO_APOYO");
 					if (isCarro && !isPalpa && isTwisl && isSubir ){
-						pesando = true;
+						if ( pesando != true) pesando = true;
 						estado = ESPERA_SOLTAR;
 					}
 					else if (!isTwisl) estado = ESPERA_CARRO_ENVIA;

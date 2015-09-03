@@ -114,7 +114,7 @@ int DX80Enlace::VerificaTrama (char *buffer){
 
 
 	log.debug("%s: %s %d Pesos individuales : %.1f - %.1f - %.1f - %.1f",__FILE__, "Peso calculado: " , res, dx.getPeso1() , dx.getPeso2() , dx.getPeso3() , dx.getPeso4());
-	log.debug("%s: %s %.1f %s %.1f",__FILE__, "Centro de Masas X: " , cmX, " Y: ", cmY);
+	log.info("%s: %s %.1f %s %.1f",__FILE__, "Centro de Masas X: " , cmX, " Y: ", cmY);
 	log.debug("%s: %s",__FILE__, "Fin de funcion VerificaTrama");
 	return res;
 }

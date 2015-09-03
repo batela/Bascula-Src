@@ -208,7 +208,7 @@ void service_resource::getLastData(string &data)
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
 	strftime (now,20,"%F %T",timeinfo);
-	char isValido = (bscl->getBSCL()->GetEstable()==true)?'V':'N';
+	//char isValido = (bscl->getBSCL()->GetEstable()==true)?'V':'N';
 	//sprintf(raw,"%d;%c;%c;%d;%s\n",1,isValido,bscl->getBSCL()->GetSigno(),bscl->getBSCL()->GetPeso(),now);
 	int isCarro, isPalpa, isTwisl, isSubir;
 	bscl->getBSCL()->GetIO(isCarro,isPalpa,isTwisl,isSubir);
@@ -223,12 +223,15 @@ void service_resource::getLastData(string &data)
   int pesoValido = dx80->getDX()->getPesoValido();
   int cmX = dx80->getDX()->getCMX() ;
   int cmY = dx80->getDX()->getCMY();
+
+  /*
   if (cmX > 100) cmX = 100;
   if (cmY > 100) cmY = 100;
   if (cmX < -100) cmX = -100;
   if (cmY < -100) cmY = -100;
-
   printf (">>>>>>>>>>>>>>>>>>>Centros de masa %d %d\n",dx80->getDX()->getCMX(),dx80->getDX()->getCMY());
+	*/
+
 	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido);
 	data =  raw;
 	std::cout << "Enviado: " << data << std::endl;

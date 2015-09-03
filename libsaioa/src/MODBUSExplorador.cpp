@@ -80,7 +80,6 @@ void MODBUSExplorador::LanzarExplorador (){
 	int res = pthread_create( &idThLector, NULL, lectorModbus, this);
 
 	struct sched_param params;
-	  // We'll set the priority to the maximum.
 	params.sched_priority = sched_get_priority_max(SCHED_FIFO);
 	res = pthread_setschedparam(idThLector, SCHED_FIFO, &params);
 	if (res != 0) {
@@ -118,7 +117,6 @@ int MODBUSExplorador::Explora (){
 			ExploraEquipo();
 		}
 	}
-
 	log.debug("%s: %s",__FILE__, "Termina exploracion MODBUS");
 	return res;
 }
@@ -158,7 +156,6 @@ void MODBUSExplorador::LeerHoldingRegisters(int kc) {
 		else {
 		  (getEnlace())->analizaTrama(buffer,i);
 		}
-
 	}
 	log.debug("%s: %s",__FILE__, "Finalizando lectura Holding Registers");
 }
