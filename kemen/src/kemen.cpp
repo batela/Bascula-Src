@@ -184,10 +184,8 @@ void * PesaContainerRadio (void * exBascula){
 }
 
 
-
-
 void * AlmacenaPesada (void * exBascula){
-
+  //Desactivado de momento
   int pesajesCorrectos = 100;
   int pesajes     = 0 ;
   float pesoMedio = 0;
