@@ -5,7 +5,7 @@
  *      Author: borja
  */
 
-#include "../include/GPSEnlace.h"
+#include "GPSEnlace.h"
 
 
 namespace container {

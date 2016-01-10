@@ -5,7 +5,7 @@
  *      Author: borja
  */
 
-#include "../include/Explorador.h"
+#include "Explorador.h"
 
 
 namespace container {
