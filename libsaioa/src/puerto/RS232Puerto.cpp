@@ -5,7 +5,7 @@
  *      Author: borja
  */
 
-#include "../include/RS232Puerto.h"
+#include "RS232Puerto.h"
 
 namespace container {
 extern log4cpp::Category &log;

@@ -5,7 +5,7 @@
  *      Author: root
  */
 
-#include "../include/MODBUSPuerto.h"
+#include "MODBUSPuerto.h"
 
 #include <Category.hh>
 #include <modbus-rtu.h>
