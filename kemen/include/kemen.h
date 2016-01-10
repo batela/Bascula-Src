@@ -18,6 +18,7 @@
 #include "RS232Puerto.h"
 #include "MODBUSPuerto.h"
 #include "IOEnlace.h"
+#include "IOEnlaceGrua.h"
 #include "BSCLEnlace.h"
 #include "Explorador.h"
 #include "MODBUSExplorador.h"

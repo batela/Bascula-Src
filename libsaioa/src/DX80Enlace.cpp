@@ -7,6 +7,13 @@
 
 #include "../include/DX80Enlace.h"
 
+#include <configini.h>
+#include <Category.hh>
+#include <cstdlib>
+#include <string>
+
+#include "../include/Env.h"
+
 namespace container {
 extern log4cpp::Category &log;
 /***
@@ -27,8 +34,12 @@ void DX80Enlace::Configure (string a){
   pma = atoi(Env::getInstance()->GetValue("pesomaximo").data());
 	offsetpeso = atoi(Env::getInstance()->GetValue("offsetpeso").data());
 	precisionpesada=atoi(Env::getInstance()->GetValue("precisionpesada").data());
-
+	if (ConfigReadFile(a.data(), &cfg) != CONFIG_OK) {
+	  log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", a.data());
+	  cfg = NULL;
+	}
 }
+
 /**
  * res = 0 correcto res != error
  */

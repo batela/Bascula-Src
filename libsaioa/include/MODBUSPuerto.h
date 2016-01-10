@@ -28,9 +28,11 @@ public:
 	int abrir();
 	void cerrar();
 	int reabrir();
+	int setAddress (int a);
 	int leer (char buffer[]){return 0;};
 	int leer (int cod, int inicio, int tam,char  buffer[]);
-	int escribir (char buffer[], int count);
+	int escribir (int cod , int inicio , int val);
+	int escribir (char buffer[], int count){return 0;}
 private:
 		int baudrate;
 		modbus_t *ctx;

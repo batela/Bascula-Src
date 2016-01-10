@@ -25,6 +25,7 @@ class Explorador {
 public:
 	Explorador();
 	Explorador(Enlace* e, Puerto* p,bool lanzar);
+	Explorador(vector<Enlace*> e, Puerto* p,bool lanzar);
 	virtual ~Explorador();
 	void LanzarExplorador ();
 	friend void *lector( void *ptr );
@@ -36,9 +37,13 @@ public:
 	bool sigue ;
 	Puerto * getPuerto (){return puerto;}
 	Enlace * getEnlace (){return enlace;}
+	vector <Enlace*> * getEnlaces () {return &enlaces;};
+	vector <Enlace*> enlaces;
 protected:
 	pthread_t idThLector;
+
 private:
+  //vector <Enlace*> enlaces;
 	Enlace* enlace;
 	Puerto* puerto;
 

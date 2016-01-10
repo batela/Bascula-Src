@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include "Env.h"
+#include "configini.h"
 using namespace std;
 namespace container {
 
@@ -22,6 +23,8 @@ public:
 	virtual ~Enlace();
 	virtual int analizaTrama(char * buffer,int tipo = 0){return 0;};
 	virtual int trataError(){return 0;};
+	string getItemCfg (string section , string a) ;
+	int getItemCnt (string section) {ConfigGetKeyCount(this->cfg,section.data());};
 
 	virtual int VerificaTrama (char buffer[]){return 0;};
 	void SetStartByte	(char a) { startByte = a;} ;
@@ -35,10 +38,11 @@ public:
 protected:
 	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) ;
 	std::vector<std::string> split(const std::string &s, char delim);
-
+	Config *cfg;
 private:
 	char startByte;
 	char endByte;
+
 };
 
 } /* namespace container */

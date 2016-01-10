@@ -32,4 +32,11 @@ std::vector<std::string> Enlace::split(const std::string &s, char delim) {
     split(s, delim, elems);
     return elems;
 }
+string Enlace::getItemCfg(string section, string a)
+{
+  char val[100] ;
+  ConfigReadString(cfg,section.data(),a.data(),val,sizeof(val),"");
+  return val;
+
+}
 } /* namespace container */

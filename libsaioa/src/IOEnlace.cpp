@@ -10,9 +10,17 @@
 namespace container {
 	extern log4cpp::Category &log;
 	IOEnlace::IOEnlace() {
+	  cfg = NULL;
 	}
 	IOEnlace::~IOEnlace() {
 		// TODO Auto-generated destructor stub
+	}
+
+	void IOEnlace::Configure (string a){
+	  if (ConfigReadFile(a.data(), &cfg) != CONFIG_OK) {
+	    log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", a.data());
+	    cfg = NULL;
+	  }
 	}
 	/**
 	 * @return 0 if OK

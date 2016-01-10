@@ -53,6 +53,13 @@ Explorador::Explorador(Enlace* e, Puerto* p, bool lanzar){
 	sigue = lanzar;
 	if (sigue) LanzarExplorador();
 }
+Explorador::Explorador(vector<Enlace*> e, Puerto* p,bool lanzar)
+{
+  enlaces = e;
+  puerto = p;
+  sigue = lanzar;
+  if (sigue) LanzarExplorador();
+}
 Explorador::~Explorador() {
 	// TODO Auto-generated destructor stub
 	sigue = false ;

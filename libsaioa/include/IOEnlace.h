@@ -24,6 +24,7 @@ public:
 	virtual ~IOEnlace();
 	int analizaTrama ( char * trama,int tipo);
 	Locks * GetLocks() {return &locks;};
+	void Configure (string a);
 private:
 	Locks locks;
 };

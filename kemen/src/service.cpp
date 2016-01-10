@@ -19,8 +19,24 @@
 */
 
 
-#include <string>
 #include "../include/service.h"
+
+#include <Bascula.h>
+#include <DB.h>
+#include <DX80.h>
+#include <Env.h>
+#include <httpserver/http_request.hpp>
+#include <httpserver/http_response.hpp>
+#include <httpserver/http_response_builder.hpp>
+#include <httpserver/http_utils.hpp>
+#include <pthread.h>
+#include <cstdlib>
+#include <ctime>
+#include <iterator>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 
 bool verbose=true;
@@ -28,6 +44,12 @@ using namespace std;
 using namespace std;
 extern BSCLEnlace *bscl;
 extern DX80Enlace *dx80;
+extern vector<int> gPesos;
+extern vector<int> gPesosC1;
+extern vector<int> gPesosC2;
+extern vector<int> gPesosC3;
+extern vector<int> gPesosC4;
+
 service_resource::service_resource()
 {
 	pthread_mutex_init(&mtxService, NULL);
@@ -53,15 +75,18 @@ void service_resource::render_GET(const http_request &req, http_response** res)
   req.get_args(queryitems);
 
   if (operation.compare("historico")==0)
-  	this->getDBHistoricData(queryitems.find("startdate")->second,queryitems.find("enddate")->second,response);
+      this->getDBHistoricData(queryitems.find("startdate")->second,queryitems.find("enddate")->second,response);
   else if (operation.compare("max") == 0)
-  	this->getDBMaxDayData(queryitems.find("startdate")->second,queryitems.find("enddate")->second,queryitems.find("count")->second,response);
+  	  this->getDBMaxDayData(queryitems.find("startdate")->second,queryitems.find("enddate")->second,queryitems.find("count")->second,response);
   else if(operation.compare("ultimo") == 0)
-  	this->getLastData(response);
+  	  this->getLastData(response);
   else if(operation.compare("ultimosdiez") == 0)
     	this->getLastTenData(response);
   else if(operation.compare("reiniciar") == 0)
-      	this->reiniciar();
+      this->reiniciar();
+  else if(operation.compare("grafica") == 0)
+      this->getGraficaData(response);
+
   else std::cout << "Operacion: " << req.get_arg("op") << " no localizada."<<"\n";
 
   *res = new http_response(http_response_builder(response, 200).string_response());
@@ -182,24 +207,59 @@ void service_resource::getLastTenData(string &data)
 {
 	std::cout << "getLastTenData start:" << std::endl;
 	if (db->ReadLastTenData(data) != 0) db->Close();
-	/*
-	DBPesaje db("/home/batela/bascula/db/kemen.db");
-	db.Open();
-	db.ReadLastTenData(data);
-	db.Close();
-	*/
 }
 
+/**
+ * http://192.168.24.109:9898/service?op=grafica
+ */
+void service_resource::getGraficaData(string &data)
+{
+  std::cout << "getGraficaData start:" << std::endl;
+  std::stringstream ss;
+
+  int esperaPeso = atoi(Env::getInstance()->GetValue("esperapeso").data());
+  int pesajesCorrectos = atoi(Env::getInstance()->GetValue("pesajescorrectos").data());
+  int numeroDatos = gPesos.size();
+  ss << "A;"<< esperaPeso << ";" << pesajesCorrectos << ";" << numeroDatos << "\n";
+  for(std::vector<int>::iterator it = gPesos.begin(); it != gPesos.end(); ++it) {
+    ss << *it << ";";
+  }
+  ss <<"\n";
+
+  for(std::vector<int>::iterator it = gPesosC1.begin(); it != gPesosC1.end(); ++it) {
+    ss << *it << ";";
+  }
+  ss <<"\n";
+
+  for(std::vector<int>::iterator it = gPesosC2.begin(); it != gPesosC2.end(); ++it) {
+    ss << *it << ";";
+  }
+  ss <<"\n";
+
+  for(std::vector<int>::iterator it = gPesosC3.begin(); it != gPesosC3.end(); ++it) {
+    ss << *it << ";";
+  }
+  ss <<"\n";
+
+  for(std::vector<int>::iterator it = gPesosC4.begin(); it != gPesosC4.end(); ++it) {
+    ss << *it << ";";
+  }
+  ss <<"\n";
+  data = ss.str();
+
+  std::cout << "getGraficaData end:" << std::endl;
+}
 void service_resource::reiniciar()
 {
 	system("sudo shutdown -r 0");
 }
-
+/**
+ * http://192.168.24.109:9898/service?op=ultimo
+ */
 void service_resource::getLastData(string &data)
 {
 
-	std::cout << "getLastData.... "<< std::endl;
-
+	//std::cout << "getLastData.... "<< std::endl;
 
 	char raw[256];
 	char now [20];
@@ -208,10 +268,12 @@ void service_resource::getLastData(string &data)
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
 	strftime (now,20,"%F %T",timeinfo);
-	//char isValido = (bscl->getBSCL()->GetEstable()==true)?'V':'N';
-	//sprintf(raw,"%d;%c;%c;%d;%s\n",1,isValido,bscl->getBSCL()->GetSigno(),bscl->getBSCL()->GetPeso(),now);
+
 	int isCarro, isPalpa, isTwisl, isSubir;
 	bscl->getBSCL()->GetIO(isCarro,isPalpa,isTwisl,isSubir);
+
+	int isIOg0,isIOg1,isIOg2,isIOg3,isIOg4,isIOg5,isIOg6,isIOg7;
+	bscl->getBSCL()->GetGruaIO(isIOg0,isIOg1,isIOg2,isIOg3,isIOg4,isIOg5,isIOg6,isIOg7);
 
 	char okM = ((dx80->getDX()->getIsOKMaster()==true)?'F':'V');
 	char okR = ((dx80->getDX()->getIsOKRadio()==true)?'F':'V');
@@ -224,17 +286,18 @@ void service_resource::getLastData(string &data)
   int cmX = dx80->getDX()->getCMX() ;
   int cmY = dx80->getDX()->getCMY();
 
-  /*
-  if (cmX > 100) cmX = 100;
-  if (cmY > 100) cmY = 100;
-  if (cmX < -100) cmX = -100;
-  if (cmY < -100) cmY = -100;
-  printf (">>>>>>>>>>>>>>>>>>>Centros de masa %d %d\n",dx80->getDX()->getCMX(),dx80->getDX()->getCMY());
-	*/
+  char iog0 = ((isIOg0)==0)?'F':'V';
+  char iog1 = ((isIOg1)==0)?'F':'V';
+  char iog2 = ((isIOg2)==0)?'F':'V';
+  char iog3 = ((isIOg3)==0)?'F':'V';
+  char iog4 = ((isIOg4)==0)?'F':'V';
+  char iog5 = ((isIOg5)==0)?'F':'V';
+  char iog6 = ((isIOg6)==0)?'F':'V';
+  char iog7 = ((isIOg7)==0)?'F':'V';
 
-	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido);
+	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d;%c;%c;%c;%c;%c;%c;%c;%c\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido,iog0,iog1,iog2,iog3,iog4,iog5,iog6,iog7);
 	data =  raw;
-	std::cout << "Enviado: " << data << std::endl;
+	//std::cout << "Enviado: " << data << std::endl;
 }
 
 /*

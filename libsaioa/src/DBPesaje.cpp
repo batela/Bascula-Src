@@ -46,6 +46,7 @@ int DBPesaje::ReadHistoricData (string startdate, string enddate,string &data){
       	data = data + raw;
       }
     }
+    sqlite3_finalize(statement);
   }
   if (data.compare("")== 0) data = "NO DATA\n";
   log.info("%s-%s: %s", __FILE__,__FUNCTION__, "Ending function..") ;
@@ -83,6 +84,7 @@ int DBPesaje::ReadMaxDayData (string startdate, string enddate, string count, st
       	data = data + raw;
       }
     }
+    sqlite3_finalize(statement);
   }
   if (data.compare("")== 0) data = "NO DATA\n";
   log.info("%s-%s: %s", __FILE__,__FUNCTION__, "Ending function..") ;
@@ -120,6 +122,7 @@ int DBPesaje::ReadLastTenData (string &data){
       }
     }
     isError = 0;
+    sqlite3_finalize(statement);
   }
   if (data.compare("")== 0) data = "NO DATA\n";
   log.info("%s-%s: %s", __FILE__,__FUNCTION__, "Ending function..") ;
