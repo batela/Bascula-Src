@@ -5,20 +5,18 @@
  *      Author: borja
  */
 
-#include "../include/IOEnlaceGrua.h"
+#include "../include/enlace/IOEnlace.h"
 
 namespace container {
 	extern log4cpp::Category &log;
-
-	IOEnlaceGrua::IOEnlaceGrua() {
+	IOEnlace::IOEnlace() {
 	  cfg = NULL;
 	}
-
-	IOEnlaceGrua::~IOEnlaceGrua() {
+	IOEnlace::~IOEnlace() {
+		// TODO Auto-generated destructor stub
 	}
 
-	void IOEnlaceGrua::Configure (string a){
-
+	void IOEnlace::Configure (string a){
 	  if (ConfigReadFile(a.data(), &cfg) != CONFIG_OK) {
 	    log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", a.data());
 	    cfg = NULL;
@@ -27,20 +25,15 @@ namespace container {
 	/**
 	 * @return 0 if OK
 	 */
-	int IOEnlaceGrua::analizaTrama (char * trama,int tipo){
+	int IOEnlace::analizaTrama (char * trama,int tipo){
 		log.debug("%s: %s",__FILE__, "Comienza funcion AnalizaTrama");
-
-		grua.setIo0(trama[0]);
-		grua.setIo1(trama[1]);
-		grua.setIo2(trama[2]);
-		grua.setIo3(trama[3]);
-		grua.setIo4(trama[4]);
-		grua.setIo5(trama[5]);
-		grua.setIo6(trama[6]);
-		grua.setIo7(trama[7]);
-
+		int res = 0 ;
+		locks.SetLock01(trama[0]);
+		locks.SetLock02(trama[1]);
+		locks.SetLock03(trama[2]);
+		locks.SetLock04(trama[3]);
 		log.debug("%s: %s",__FILE__, "Fin de funcion AnalizaTrama");
-		return 0;
+		return res;
 	}
 
 

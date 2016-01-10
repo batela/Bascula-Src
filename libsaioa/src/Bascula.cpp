@@ -7,7 +7,6 @@
 
 #include "../include/Bascula.h"
 
-dsfsfs
 namespace container {
   /**
    *

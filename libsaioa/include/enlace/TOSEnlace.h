@@ -8,7 +8,7 @@
 #ifndef TOSENLACE_H_
 #define TOSENLACE_H_
 
-#include "Enlace.h"
+#include "enlace/Enlace.h"
 #include "TOSMsj.h"
 
 namespace container {

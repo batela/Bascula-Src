@@ -13,7 +13,8 @@
 #include <fstream>
 #include <pthread.h>
 #include <unistd.h>
-#include "Enlace.h"
+
+#include "enlace/Enlace.h"
 #include "Puerto.h"
 #include "RS232Puerto.h"
 #include "Orden.h"

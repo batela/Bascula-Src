@@ -6,7 +6,8 @@
  */
 
 #include "../include/MODBUSExplorador.h"
-#include "../include/IOEnlace.h"
+
+#include "../include/enlace/IOEnlace.h"
 namespace container {
 extern log4cpp::Category &log;
 

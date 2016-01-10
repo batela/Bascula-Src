@@ -12,10 +12,11 @@
 #include <string>
 #include <stdlib.h>
 #include <sstream>
-#include "Enlace.h"
 #include "Env.h"
-#include "GPS.h"
 #include "llstr.h"
+
+#include "enlace/Enlace.h"
+#include "enlace/GPS.h"
 using namespace std;
 namespace container {
 

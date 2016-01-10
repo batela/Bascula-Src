@@ -5,7 +5,7 @@
  *      Author: borja
  */
 
-#include "../include/CATOSEnlace.h"
+#include "../../include/enlace/CATOSEnlace.h"
 
 
 namespace container {

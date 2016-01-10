@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "Enlace.h"
+#include "enlace/Enlace.h"
+#include "enlace/TOSEnlace.h"
 #include "Explorador.h"
-#include "TOSEnlace.h"
 namespace container {
 
 class TOSExplorador: public Explorador {

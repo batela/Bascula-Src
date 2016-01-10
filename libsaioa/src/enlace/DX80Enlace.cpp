@@ -5,7 +5,7 @@
  *      Author: root
  */
 
-#include "../include/DX80Enlace.h"
+#include "../include/enlace/DX80Enlace.h"
 
 #include <configini.h>
 #include <Category.hh>

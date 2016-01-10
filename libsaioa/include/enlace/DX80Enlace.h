@@ -9,8 +9,8 @@
 #define DX80ENLACE_H_
 
 
-#include "Enlace.h"
 #include "DX80.h"
+#include "enlace/Enlace.h"
 
 namespace container {
 

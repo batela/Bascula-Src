@@ -5,7 +5,7 @@
  *      Author: root
  */
 
-#include "../include/BSCLEnlace.h"
+#include "../../include/enlace/BSCLEnlace.h"
 
 namespace container {
 extern log4cpp::Category &log;
