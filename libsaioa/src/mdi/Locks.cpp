@@ -5,7 +5,7 @@
  *      Author: root
  */
 
-#include "../include/Locks.h"
+#include "Locks.h"
 
 namespace container {
 

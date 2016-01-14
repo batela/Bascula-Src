@@ -5,7 +5,8 @@
  *      Author: root
  */
 
-#include "../include/GruaIO.h"
+#include "GruaIO.h"
+
 namespace container {
 extern log4cpp::Category &log;
   GruaIO::GruaIO() {

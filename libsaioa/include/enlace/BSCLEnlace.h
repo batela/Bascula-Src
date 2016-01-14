@@ -8,7 +8,7 @@
 #ifndef BSCLENLACE_H_
 #define BSCLENLACE_H_
 
-#include "../Bascula.h"
+#include "Bascula.h"
 #include "Enlace.h"
 namespace container {
 

@@ -5,7 +5,7 @@
  *      Author: root
  */
 
-#include "../include/TOSMsj.h"
+#include "TOSMsj.h"
 
 #include <Category.hh>
 #include <cstdio>
