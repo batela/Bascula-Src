@@ -1,5 +1,4 @@
 #include "../include/kemen.h"
-
 #include <Bascula.h>
 #include <DX80.h>
 #include <Env.h>
@@ -10,9 +9,6 @@
 #include <log4cpp/PropertyConfigurator.hh>
 #include <Locks.h>
 #include <unistd.h>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
 #include <iterator>
 #include <string>
 #include <vector>

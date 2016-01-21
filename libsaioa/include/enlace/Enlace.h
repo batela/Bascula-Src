@@ -21,10 +21,10 @@ class Enlace {
 public:
 	Enlace();
 	virtual ~Enlace();
-	virtual int analizaTrama(char * buffer,int tipo = 0){return 0;};
+	virtual int analizaTrama(char * buffer,int tipo = 0){return 0;}
 	virtual int trataError(){return 0;};
 	string getItemCfg (string section , string a) ;
-	int getItemCnt (string section) {ConfigGetKeyCount(this->cfg,section.data());};
+	int getItemCnt (string section) {ConfigGetKeyCount(this->cfg,section.data());}
 
 	virtual int VerificaTrama (char buffer[]){return 0;};
 	void SetStartByte	(char a) { startByte = a;} ;
