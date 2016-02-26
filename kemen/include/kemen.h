@@ -20,6 +20,8 @@
 #include "IOEnlace.h"
 #include "IOEnlaceGrua.h"
 #include "BSCLEnlace.h"
+#include "TOSEnlace.h"
+#include "TOSExplorador.h"
 #include "Explorador.h"
 #include "MODBUSExplorador.h"
 #include "DBPesaje.h"

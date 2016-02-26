@@ -10,6 +10,7 @@
 
 #include <pthread.h>
 #include <string>
+#include "stdlib.h"
 
 using namespace std;
 namespace container {
@@ -25,6 +26,7 @@ private:
    pthread_mutex_t thread_mutex;
 public:
    static TOSMsj* Instance();
+   int getRotacion();
    void msjTOS(bool import, string grua, int peso,char * msj);
 
 };

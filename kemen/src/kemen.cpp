@@ -85,6 +85,10 @@ void * PesaContainerRadio (void * enlace){
   tim.tv_sec  = 0;
   tim.tv_nsec = 100 * 1000000L; //en milisegundos
   bool delayHecho = false;
+  //Para envio a catos.
+  TOSEnlace *tos = new TOSEnlace ();
+  RS232Puerto *tosPort = new RS232Puerto(Env::getInstance()->GetValue("puertocatos"), 9600);
+  TOSExplorador *tosEx = new TOSExplorador (tos,tosPort,"/home/batela/bascula/cnf/tos.cnf");
 
   while (true){
     tim.tv_nsec = 100 * 1000000L;
@@ -99,8 +103,9 @@ void * PesaContainerRadio (void * enlace){
         delayHecho = true;
       }
       tim.tv_nsec = 200 * 1000000L;
-      int peso = ((DX80Enlace*)ex)->getDX()->getPeso();
-      //((DX80Enlace*)ex->getEnlace())->getDX()->setPesoValido(pesoMedio); Cuando se pasaba el explorador
+      //int peso = ((DX80Enlace*)ex)->getDX()->getPeso();
+      int peso = ((DX80Enlace*)ex)->getDX()->getPesoRaw();
+
       if (((DX80Enlace*)ex)->getDX()->getSigno() !='-'){
         pesos.push_back(peso);
         if (pesajes++<= pesajesCorrectos)
@@ -129,6 +134,7 @@ void * PesaContainerRadio (void * enlace){
         db.Open();
         db.InsertData(1,pesoMedio);
         db.Close();
+        tosEx->EscribeTramaTOS(true,"MT02",pesoMedio);
       }
     }
 
@@ -142,7 +148,7 @@ void * PesaContainerRadio (void * enlace){
  */
 void * CalculaOffSetPesada (void * exBascula)
 {
-  //Desactivado de momento
+   //Desactivado de momento
    MODBUSExplorador* ex = (MODBUSExplorador *) exBascula;
 
    struct timespec tim, tim2;
@@ -205,8 +211,9 @@ void * CalibradoCelulas (void * e)
     pC3 = pC3 / pesosC3.size();
     pC4 = pC4 / pesosC4.size();
 
-    //log.info(">>>>>>>>>>>>>>>>Calculo margen calibrado %d total %d",pC1 + pC2 + pC3 + pC4 , margenCalibrado);
+    log.info(">>>>>>>>>>>>>>>>Calculo margen calibrado %d total %d",pC1 + pC2 + pC3 + pC4 , margenCalibrado);
     //Si la suma de los pesajes supera el margen de calibrado activamos la señal de calibrado
+
     if ((pC1 + pC2 + pC3 + pC4) >= margenCalibrado){
       int dirMB = atoi (mbEnlacesP1[0]->getItemCfg("equipo","dir").data());
       log.info("%s: %s",__FILE__, "Señal de calibrado ON");
@@ -218,12 +225,11 @@ void * CalibradoCelulas (void * e)
       log.info("%s: %s",__FILE__, "Señal de calibrado OFF");
       if (ex->EscribeCoil(dirMB,ioCalib,0) != 0){
         ex->EscribeCoil(dirMB,ioCalib,0);
-       }
+      }
     }
-
     log.debug("%s: %s",__FILE__, "Finalizado calibrado de celulas");
 
-   return 0;
+    return 0;
 }
 /**
  *

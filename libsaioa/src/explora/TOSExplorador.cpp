@@ -84,8 +84,10 @@ bool TOSExplorador::EscribeTramaTOS(bool import, string grua, int peso)
   bool res = false  ;
 
   char msj[100];
-  if ((res =((TOSEnlace*)this->getEnlace())->MsjTOS(import,grua,peso,msj)) == true)
-    this->getPuerto()->escribir(msj,strlen(msj));
+  if ((res =((TOSEnlace*)this->getEnlace())->MsjTOS(import,grua,peso,msj)) == true){
+    ((RS232Puerto*)this->getPuerto())->escribir(msj,strlen(msj));
+    log.info("%s: Enviado mensaje TOS: %s longitud: %d",__FILE__, msj,strlen(msj));
+  }
   else
     log.error("%s: %s %s %s %d",__FILE__, "Error generado mensaje TOS ", (import)?"Import":"Export",grua.c_str(),peso);
 

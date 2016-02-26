@@ -286,6 +286,9 @@ void service_resource::getLastData(string &data)
   int cmX = dx80->getDX()->getCMX() ;
   int cmY = dx80->getDX()->getCMY();
 
+  if (isTwisl == false)  cmX=cmY=0;
+
+
   char iog0 = ((isIOg0)==0)?'F':'V';
   char iog1 = ((isIOg1)==0)?'F':'V';
   char iog2 = ((isIOg2)==0)?'F':'V';
@@ -294,8 +297,8 @@ void service_resource::getLastData(string &data)
   char iog5 = ((isIOg5)==0)?'F':'V';
   char iog6 = ((isIOg6)==0)?'F':'V';
   char iog7 = ((isIOg7)==0)?'F':'V';
-
-	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d;%c;%c;%c;%c;%c;%c;%c;%c\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido,iog0,iog1,iog2,iog3,iog4,iog5,iog6,iog7);
+  char cal = 'R';
+	sprintf(raw,"%d;%c;%c;%d;%s;%d;%d;%d;%d;%.0f;%.0f;%.0f;%.0f;%d;%d;%c;%c;%c;%c;%c;%c;%c;%c;%c;%d;%c;%c;%c;%c;%c;%c;%c;%c%c\n",1,fijo,'+',dx80->getDX()->getPeso(),now,isCarro,isPalpa,isTwisl,isSubir,dx80->getDX()->getPeso1(),dx80->getDX()->getPeso2(),dx80->getDX()->getPeso3(),dx80->getDX()->getPeso4(),cmX,cmY,okTW1,okTW2,okTW3,okTW4,okR,'F','G','H',okM,pesoValido,iog0,iog1,iog2,iog3,iog4,iog5,iog6,iog7,cal);
 	data =  raw;
 	//std::cout << "Enviado: " << data << std::endl;
 }

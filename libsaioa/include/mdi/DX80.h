@@ -69,6 +69,18 @@ public:
 
 	void CalculaAlarmas();
 	void Configure();
+
+  float getPeso1Raw() const { return peso1Raw; }
+  void setPeso1Raw(float peso1Raw) { this->peso1Raw = peso1Raw; }
+  float getPeso2Raw() const {return peso2Raw; }
+  void setPeso2Raw(float peso2Raw) { this->peso2Raw = peso2Raw; }
+  float getPeso3Raw() const {return peso3Raw; }
+  void setPeso3Raw(float peso3Raw) {  this->peso3Raw = peso3Raw;  }
+  float getPeso4Raw() const { return peso4Raw; }
+  void setPeso4Raw(float peso4Raw) { this->peso4Raw = peso4Raw; }
+  float getPesoRaw() const {  return pesoRaw; }
+  void setPesoRaw(float pesoRaw) {  this->pesoRaw = pesoRaw; }
+
 private:
 
 	int   valores[4];
@@ -79,6 +91,14 @@ private:
 	float peso2;
 	float peso3;
 	float peso4;
+
+	float pesoRaw;
+	float peso1Raw;
+	float peso2Raw;
+	float peso3Raw;
+	float peso4Raw;
+
+
 	char signo;
 	bool isOKInput1;
 	bool isOKInput2;

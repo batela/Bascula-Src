@@ -42,7 +42,7 @@ int DBPesaje::ReadHistoricData (string startdate, string enddate,string &data){
       		}
         }
       	char raw[256];
-      	sprintf(raw,"%d;%.1f;%s\n",idCanal,valor,fecha.data());
+      	sprintf(raw,"%d;%.0f;%s\n",idCanal,valor,fecha.data());
       	data = data + raw;
       }
     }
@@ -80,7 +80,7 @@ int DBPesaje::ReadMaxDayData (string startdate, string enddate, string count, st
       		}
         }
       	char raw[256];
-      	sprintf(raw,"%d;%.1f;%s\n",idCanal,valor,fecha.data());
+      	sprintf(raw,"%d;%.0f;%s\n",idCanal,valor,fecha.data());
       	data = data + raw;
       }
     }
@@ -117,7 +117,7 @@ int DBPesaje::ReadLastTenData (string &data){
       		}
       	}
       	char raw[256];
-      	sprintf(raw,"%d;%.1f;%s\n",idCanal,valor,fecha.data());
+      	sprintf(raw,"%d;%.0f;%s\n",idCanal,valor,fecha.data());
       	data = data + raw;
       }
     }

@@ -28,6 +28,7 @@ DX80Enlace::DX80Enlace() {
  */
 DX80Enlace::~DX80Enlace() {
 }
+
 void DX80Enlace::Configure (string a){
 
 	dx.Configure();
@@ -104,7 +105,7 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	dx.setInput3((unsigned short)(256* (unsigned char) buffer[5] + (unsigned char) buffer[4]));
 	dx.setInput4((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6]));
 
-	log.info("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
+	log.debug("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
 	int res = CalculaPeso();
 
 	float cmX = 0;
@@ -121,10 +122,11 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	}
 	dx.setCMX(cmX*100);
 	dx.setCMY(cmY*100);
+	dx.setPesoRaw(dx.getPeso1Raw() + dx.getPeso2Raw() +dx.getPeso3Raw() + dx.getPeso4Raw());
 	dx.setPeso(res);
 
 
-	log.debug("%s: %s %d Pesos individuales : %.1f - %.1f - %.1f - %.1f",__FILE__, "Peso calculado: " , res, dx.getPeso1() , dx.getPeso2() , dx.getPeso3() , dx.getPeso4());
+	log.info("%s: %s %d Pesos individuales : %.1f - %.1f - %.1f - %.1f",__FILE__, "Peso calculado: " , res, dx.getPeso1() , dx.getPeso2() , dx.getPeso3() , dx.getPeso4());
 	log.info("%s: %s %.1f %s %.1f",__FILE__, "Centro de Masas X: " , cmX, " Y: ", cmY);
 	log.debug("%s: %s",__FILE__, "Fin de funcion VerificaTrama");
 	return res;
@@ -150,18 +152,22 @@ int DX80Enlace::CalculaPeso(){
 
 	//Finalmente se hace el escalado
 	float aux =  ((float)dx.getInput1() * (float)20)/ (float)65535 ; //pasar a Amperios
+	dx.setPeso1Raw((((float)pma * aux)/16.0) - (float)offsetpeso);
   dx.setPeso1(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
 
   aux =  ((float)dx.getInput2() * (float)20)/ (float)65535 ;
   dx.setPeso2(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
+  dx.setPeso2Raw((((float)pma * aux)/16.0) - (float)offsetpeso);
 
   aux =  ((float)dx.getInput3() * (float)20)/ (float)65535 ;
   dx.setPeso3(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
+  dx.setPeso3Raw((((float)pma * aux)/16.0) - (float)offsetpeso);
 
   aux =  ((float)dx.getInput4() * (float)20)/ (float)65535 ;
   dx.setPeso4(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
+  dx.setPeso4Raw((((float)pma * aux)/16.0) - (float)offsetpeso);
 
-	return (dx.getPeso1() + dx.getPeso2() +dx.getPeso3() + dx.getPeso4());
+  return (dx.getPeso1() + dx.getPeso2() +dx.getPeso3() + dx.getPeso4() );
 }
 
 int DX80Enlace::Redondea(int num)
@@ -170,7 +176,9 @@ int DX80Enlace::Redondea(int num)
       return num;
     else {
       int rem = abs (num % precisionpesada);
-      return ((rem >= precisionpesada/2 )? (num - rem + precisionpesada) : (num - rem));
+      int peso = ((rem >= precisionpesada/2 )? (num - rem + precisionpesada) : (num - rem));
+      if  (peso <=  (precisionpesada+1)  && peso > 0) peso = 0;
+      return ((peso >= 0 )? (peso) : (peso <-100)?peso:0);
     }
 
 }

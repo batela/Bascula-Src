@@ -11,7 +11,7 @@ namespace container {
 extern log4cpp::Category &log;
 
 
-	RS232Puerto::RS232Puerto(string id,int baudrate) : Puerto(id,RS232)
+	RS232Puerto::RS232Puerto(string id,int baudRate) : Puerto(id,RS232)
 	{
 		configuraVelocidad(baudRate);
 		this->charSize = SerialStreamBuf::CHAR_SIZE_8;
