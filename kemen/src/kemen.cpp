@@ -59,14 +59,7 @@ void * httpservermanager(void * p)
  ws.start(true);
  return 0;
 }
-/**
- *
- */
-int CalcularPeso (vector <int> pesos, float pesoMedio){
-	int res = -1 ;
 
-	return res;
-}
 /**
  *
  */
@@ -127,7 +120,7 @@ void * PesaContainerRadio (void * enlace){
 
       pesajeHecho = true;
       ((DX80Enlace*)ex)->getDX()->setIsFijo(true);
-      ((DX80Enlace*)ex)->getDX()->CalculaAlarmas();
+      int hayAlarma = ((DX80Enlace*)ex)->getDX()->CalculaAlarmas();
       //Si el peso medido es inferior a pesominimo se entiende que es una operación
       // en vacio. No se guarda
       if (pesoMedio > pesoMinimo){
@@ -343,6 +336,7 @@ int main(int argc, char **argv) {
 	else{
 		dx80->Configure("/home/batela/bascula/cnf/dx80modbus.cnf"); //Necesario par cargar parametros
 		mbEnlacesP2.push_back(dx80);
+		//mbEnlacesP2.push_back(io); //Solo pruebas con simulador
 		MODBUSPuerto *dxPort = new MODBUSPuerto(Env::getInstance()->GetValue("puertodx80"), 19200);
 
 		//MODBUSExplorador 	*exBSCL		= new MODBUSExplorador (dx80,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
@@ -353,6 +347,9 @@ int main(int argc, char **argv) {
 	pthread_create( &idThLector, NULL, httpservermanager,NULL);
   pthread_create( &idThAlmacenaPesada, NULL, AlmacenaPesada,dx80);
   //pthread_create( &idThCalibrado, NULL, CalibradoCelulas,exGarra);
+
+  int dirMB = atoi (mbEnlacesP1[0]->getItemCfg("equipo","dir").data());
+  int ioAlarma = atoi(Env::getInstance()->GetValue("ioAlarma").data());
 
 	estado = estadoAnterior = ESPERA_CARRO_ENVIA;
 	while (true){
@@ -376,6 +373,11 @@ int main(int argc, char **argv) {
 			bscl->getBSCL()->SetGruaIO(isIOg0, isIOg1, isIOg2, isIOg3, isIOg4, isIOg5, isIOg6, isIOg7);
 			log.info("%s: %s: %d-%d-%d-%d",__FILE__, "Leido: ", isCarro, isPalpa,isTwisl,isSubir);
 			log.info("%s: %s: %d-%d-%d-%d-%d-%d-%d-%d",__FILE__, "IO en Grua: ", isIOg0, isIOg1, isIOg2, isIOg3, isIOg4, isIOg5, isIOg6, isIOg7);
+
+			if (dx80->getDX()->getHayAlarma())
+			  exGarra->EscribeCoil(dirMB,ioAlarma,1);
+			else
+			  exGarra->EscribeCoil(dirMB,ioAlarma,0);
 
 			switch (estado){
 				case ESPERA_CARRO_ENVIA:
