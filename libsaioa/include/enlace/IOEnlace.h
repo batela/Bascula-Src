@@ -26,6 +26,9 @@ public:
 	int analizaTrama ( char * trama,int tipo);
 	Locks * GetLocks() {return &locks;};
 	void Configure (string a);
+protected:
+  int trataError ();
+
 private:
 	Locks locks;
 };

@@ -36,5 +36,16 @@ namespace container {
 		return res;
 	}
 
+	int IOEnlace::trataError (){
+    log.debug("%s: %s",__FILE__, "Comienza funcion TrataError");
+    int res = 0 ;
+    locks.SetLock01(0);
+    locks.SetLock02(0);
+    locks.SetLock03(0);
+    locks.SetLock04(0);
+    log.debug("%s: %s",__FILE__, "Fin de funcion TrataError");
+    return res;
+  }
+
 
 } /* namespace container */

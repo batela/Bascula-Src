@@ -39,6 +39,7 @@ void* lector (void * explorador){
 		nanosleep(&tim , &tim2);
 	}
 	printf ("Salimos thread explorador..");
+	return NULL;
 }
 
 Explorador::Explorador() {
@@ -157,4 +158,22 @@ bool Explorador::Abrir ( ){
 bool Explorador::Cerrar ( ){
 	return (true);
 }
+
+  void Explorador::ActualizaEstadoCom(int res)
+ {
+
+    if (res != 0 ){
+      if (contadorFallos++ < 3) {
+        log.debug("%s: %s",__FILE__, "Incremento contador de Fallos !!!!!");
+      }
+      else {
+        enlace->SetIsFalloCom(true);
+      }
+    }
+    else {
+      contadorFallos = 0 ;
+      enlace->SetIsFalloCom(false);
+    }
+    log.debug("%s: %s %d",__FILE__, "Estado de comunicaciones, isFalloCom: ", enlace->GetIsFalloCom());
+  }
 } /* namespace container */

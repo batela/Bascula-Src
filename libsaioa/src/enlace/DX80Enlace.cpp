@@ -35,6 +35,23 @@ void DX80Enlace::Configure (string a){
   pma = atoi(Env::getInstance()->GetValue("pesomaximo").data());
 	offsetpeso = atoi(Env::getInstance()->GetValue("offsetpeso").data());
 	precisionpesada=atoi(Env::getInstance()->GetValue("precisionpesada").data());
+
+	lecturaEnVacio = atoi(Env::getInstance()->GetValue("lecturaenvacio").data());
+	lecturaEnPeso = atoi(Env::getInstance()->GetValue("lecturaenpeso").data());
+	pesoConocido = atoi(Env::getInstance()->GetValue("pesoconocido").data());
+	pendiente = (float)pesoConocido / (float)(lecturaEnPeso-lecturaEnVacio);
+
+	lecturaEnPeso1 = atoi(Env::getInstance()->GetValue("lecturaenpeso1").data());
+	lecturaEnPeso2 = atoi(Env::getInstance()->GetValue("lecturaenpeso2").data());
+	lecturaEnPeso3 = atoi(Env::getInstance()->GetValue("lecturaenpeso3").data());
+	lecturaEnPeso4 = atoi(Env::getInstance()->GetValue("lecturaenpeso4").data());
+
+	pendiente1 = (float)pesoConocido / (float)(lecturaEnPeso1-lecturaEnVacio);
+	pendiente2 = (float)pesoConocido / (float)(lecturaEnPeso2-lecturaEnVacio);
+	pendiente3 = (float)pesoConocido / (float)(lecturaEnPeso3-lecturaEnVacio);
+	pendiente4 = (float)pesoConocido / (float)(lecturaEnPeso4-lecturaEnVacio);
+
+
 	if (ConfigReadFile(a.data(), &cfg) != CONFIG_OK) {
 	  log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", a.data());
 	  cfg = NULL;
@@ -106,7 +123,9 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	dx.setInput4((unsigned short)(256* (unsigned char) buffer[7] + (unsigned char) buffer[6]));
 
 	log.debug("%s: Entradas: %d - %d - %d - %d",__FILE__, dx.getInput1() ,dx.getInput2() , dx.getInput3() ,dx.getInput4());
-	int res = CalculaPeso();
+
+	int res = CalculaPesoCalibrado();
+	//int res = CalculaPeso();
 
 	float cmX = 0;
 
@@ -125,12 +144,17 @@ int DX80Enlace::VerificaTrama (char *buffer){
 	dx.setPesoRaw(dx.getPeso1Raw() + dx.getPeso2Raw() +dx.getPeso3Raw() + dx.getPeso4Raw());
 	dx.setPeso(res);
 
+	dx.setInput1Peso(dx.getPeso1());
+	dx.setInput2Peso(dx.getPeso2());
+	dx.setInput3Peso(dx.getPeso3());
+	dx.setInput4Peso(dx.getPeso4());
 
 	log.info("%s: %s %d Pesos individuales : %.1f - %.1f - %.1f - %.1f",__FILE__, "Peso calculado: " , res, dx.getPeso1() , dx.getPeso2() , dx.getPeso3() , dx.getPeso4());
 	log.info("%s: %s %.1f %s %.1f",__FILE__, "Centro de Masas X: " , cmX, " Y: ", cmY);
 	log.debug("%s: %s",__FILE__, "Fin de funcion VerificaTrama");
 	return res;
 }
+
 
 
 /**
@@ -166,6 +190,53 @@ int DX80Enlace::CalculaPeso(){
   aux =  ((float)dx.getInput4() * (float)20)/ (float)65535 ;
   dx.setPeso4(Redondea((((float)pma * aux)/16.0) - (float)offsetpeso));
   dx.setPeso4Raw((((float)pma * aux)/16.0) - (float)offsetpeso);
+
+  return (dx.getPeso1() + dx.getPeso2() +dx.getPeso3() + dx.getPeso4() );
+}
+
+int DX80Enlace::CalculaPesoCalibrado(){
+  //En esta fase asignamos a cada celula la que corresponda por configuracion
+  int indiceCelula = atoi(Env::getInstance()->GetValue("activacelula1").data()) - 1;
+  if (indiceCelula >= 0 && indiceCelula <= 3) dx.setInput1(dx.getValorIdx(indiceCelula));
+
+  indiceCelula = atoi(Env::getInstance()->GetValue("activacelula2").data()) - 1;
+  if (indiceCelula >= 0 && indiceCelula <= 3) dx.setInput2(dx.getValorIdx(indiceCelula));
+
+  indiceCelula = atoi(Env::getInstance()->GetValue("activacelula3").data()) - 1;
+  if (indiceCelula >= 0 && indiceCelula <= 3) dx.setInput3(dx.getValorIdx(indiceCelula));
+
+  indiceCelula = atoi(Env::getInstance()->GetValue("activacelula4").data()) - 1;
+  if (indiceCelula >= 0 && indiceCelula <= 3) dx.setInput4(dx.getValorIdx(indiceCelula));
+
+  printf ("\n\n  PESOOOOOO   %d %d %d %d\n", dx.getInput1(),dx.getInput2(),dx.getInput3(),dx.getInput4() );
+
+  //Finalmente se hace el escalado
+  //float pesoPrueba = ((float)12000 / (float)(65353-12948)) * (float)dx.getInput1() -  2700.66;
+
+  float aux =  ((float)dx.getInput1() * (float)20)/ (float)65535 ; //pasar a Amperios
+  float pesoRawAux = ((((float)12000 * aux)/(15.8279)) - (float)2992.421);
+
+//  float pesoRedondeaAux = (float) pendiente * (float)dx.getInput1() - ((float)pendiente * (float)lecturaEnVacio);
+  float pesoRedondeaAux = (float) pendiente1 * (float)dx.getInput1() - ((float)pendiente1 * (float)lecturaEnVacio);
+  dx.setPeso1Raw(pesoRedondeaAux);
+  dx.setPeso1(Redondea(pesoRedondeaAux));
+
+  printf ("\n\n\n\n Amperios calculados: %f %f %f %f\n\n\n\n",aux,pesoRawAux,pesoRedondeaAux,(float)dx.getInput1());
+
+//  pesoRedondeaAux = ((float) pendiente) * ((float)dx.getInput2()) - (((float)pendiente) * ((float)lecturaEnVacio));
+  pesoRedondeaAux = ((float) pendiente2) * ((float)dx.getInput2()) - (((float)pendiente2) * ((float)lecturaEnVacio));
+  dx.setPeso2Raw(pesoRedondeaAux);
+  dx.setPeso2(Redondea(pesoRedondeaAux));
+
+//  pesoRedondeaAux = (float) pendiente * (float)dx.getInput3() - ((float)pendiente * (float)lecturaEnVacio);
+  pesoRedondeaAux = (float) pendiente3 * (float)dx.getInput3() - ((float)pendiente3 * (float)lecturaEnVacio);
+  dx.setPeso3Raw(pesoRedondeaAux);
+  dx.setPeso3(Redondea(pesoRedondeaAux));
+
+//  pesoRedondeaAux = (float) pendiente * (float)dx.getInput4() - ((float)pendiente * (float)lecturaEnVacio);
+  pesoRedondeaAux = (float) pendiente4 * (float)dx.getInput4() - ((float)pendiente4 * (float)lecturaEnVacio);
+  dx.setPeso4Raw(pesoRedondeaAux);
+  dx.setPeso4(Redondea(pesoRedondeaAux));
 
   return (dx.getPeso1() + dx.getPeso2() +dx.getPeso3() + dx.getPeso4() );
 }

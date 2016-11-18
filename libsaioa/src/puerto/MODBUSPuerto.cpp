@@ -29,7 +29,7 @@ namespace container {
 	}
 	int MODBUSPuerto::setAddress(int a)
 	{
-	  log.debug("%s: %s %s",__FILE__, "Configured ModBUS address");
+	  log.debug("%s: %s %d",__FILE__, "Configured ModBUS address", a);
 	  errno = 0;
 	  modbus_set_slave(ctx, a);
 	  if (errno != 0) log.debug("%s: %s %s",__FILE__, "Set timeout error",modbus_strerror(errno));
@@ -84,7 +84,7 @@ namespace container {
 	 * Devuelve -1 si hay error.
 	 */
 	int MODBUSPuerto::leer (int cod, int inicio, int tam,char buffer[]){
-		log.debug("%s: %s codigo/inicio %d - %d",__FILE__, "Inicio funcion leer",cod, inicio);
+		log.debug("%s: %s codigo/inicio/bytes %d - %d -%d",__FILE__, "Inicio funcion leer",cod, inicio,tam);
 		int count = 0 ;
 		switch (cod){
 			case 0x01:

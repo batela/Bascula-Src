@@ -25,7 +25,21 @@ public:
 	void Configure (string a);
 	DX80 * getDX () {return &dx;} ;
 private:
+	  float lecturaEnVacio ;
+	  float lecturaEnPeso  ;
+	  float lecturaEnPeso1 ;
+	  float lecturaEnPeso2 ;
+	  float lecturaEnPeso3 ;
+	  float lecturaEnPeso4 ;
+	  float pesoConocido   ;
+	  float pendiente  ;
+	  float pendiente1 ;
+	  float pendiente2 ;
+	  float pendiente3 ;
+	  float pendiente4 ;
+
 	int  CalculaPeso();
+	int  CalculaPesoCalibrado();
 	void CalculaAlarmas();
 	int Redondea(int num);
 	DX80 dx;

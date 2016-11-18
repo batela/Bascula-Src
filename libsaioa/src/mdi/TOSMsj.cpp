@@ -70,7 +70,7 @@ void TOSMsj::msjTOS(bool import, string grua, int peso, char * msj)
   strftime(buffer,80,"%H%M%S",timeinfo);
   int ltime = atoi(buffer);
 
-  sprintf (msj,"{%d%d %d %d %d %s}\n",getRotacion(),(import?8:9),ldate,ltime,peso,grua.c_str());
+  sprintf (msj,"{%d%d %d %06d %05d %s}\n",getRotacion(),(import?8:9),ldate,ltime,peso,grua.c_str());
   log.debug("%s: %s",__FILE__, "Fin funcion msjTOS");
   pthread_mutex_unlock( &thread_mutex );
 }

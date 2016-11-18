@@ -28,6 +28,7 @@ DB::~DB() {
 bool DB::Open ()	{
 	log.info("Starting function..") ;
 	log.info("%s - %s: %s", __FILE__,__FUNCTION__, "Starting function..") ;
+	thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 	int rc = sqlite3_open(this->dbPath.c_str(), &db);
 	bool res = false ;

@@ -29,6 +29,7 @@ public:
 	void ReadConfig(map<string,string>&cfg);
 protected:
 	sqlite3 *db;
+	pthread_mutex_t thread_mutex;
 private:
 	string dbPath;
 	bool open;

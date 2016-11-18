@@ -23,6 +23,12 @@ public:
 	int getInput3 (){ return valores[2];}
 	int getInput4 (){ return valores[3];}
 
+	int getInput1Peso (){ return valoresPeso[0];}
+	int getInput2Peso (){ return valoresPeso[1];}
+	int getInput3Peso (){ return valoresPeso[2];}
+	int getInput4Peso (){ return valoresPeso[3];}
+
+
 	int getPeso (){ return peso;}
 	int getPesoValido (){ return pesoValido;}
 	float getPeso1 (){ return peso1;}
@@ -43,6 +49,11 @@ public:
 	void setInput2(int a) {valores[1] = a;}
 	void setInput3(int a) {valores[2] = a;}
 	void setInput4(int a) {valores[3] = a;}
+
+	void setInput1Peso(int a) {valoresPeso[0] = a;}
+	void setInput2Peso(int a) {valoresPeso[1] = a;}
+	void setInput3Peso(int a) {valoresPeso[2] = a;}
+	void setInput4Peso(int a) {valoresPeso[3] = a;}
 
 	void setPeso(int a) {peso = a;}
 	void setPesoValido(int a) {pesoValido = a;}
@@ -69,6 +80,7 @@ public:
 
 	void CalculaAlarmas();
 	void Configure();
+  bool getHayAlarma (){return (alarmas[0] | alarmas[1] | alarmas[2] | alarmas[3]);}
 
   float getPeso1Raw() const { return peso1Raw; }
   void setPeso1Raw(float peso1Raw) { this->peso1Raw = peso1Raw; }
@@ -81,10 +93,18 @@ public:
   float getPesoRaw() const {  return pesoRaw; }
   void setPesoRaw(float pesoRaw) {  this->pesoRaw = pesoRaw; }
 
+  bool getEscentricidad() const {  return isEscentricidad; }
+  void setEscentricidad(bool e) {  this->isEscentricidad = e; }
+
+  float getTolDC() const {  return tolDiffCelulas; }
+  void setTolDC (float tdc) {  this->tolDiffCelulas = tdc; }
+
 private:
 
+  int   valoresPeso[4];
 	int   valores[4];
 	bool  alarmas[4];
+
 	int peso;
 	int pesoValido;
 	float peso1;
@@ -98,7 +118,6 @@ private:
 	float peso3Raw;
 	float peso4Raw;
 
-
 	char signo;
 	bool isOKInput1;
 	bool isOKInput2;
@@ -106,12 +125,17 @@ private:
 	bool isOKInput4;
 	bool isOKRadio;
 	bool isOKMaster;
+	bool isEscentricidad;
+
+	int origenEscentri;
 	int cmX;
 	int cmY;
 	int tolCM;
-	float tolPeso;
+	int tolDiffCelulas;
+	int tolPeso;
 	bool isFijo;
 	int offSetPeso;
+	int maxPesoTolerado;
 };
 
 } /* namespace container */

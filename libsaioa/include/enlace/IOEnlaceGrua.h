@@ -27,6 +27,10 @@ public:
 	int analizaTrama ( char * trama,int tipo);
 	GruaIO * GetIOGrua() {return &grua;};
 	void Configure (string a);
+
+protected:
+	int trataError ();
+
 private:
 	GruaIO grua;
 };

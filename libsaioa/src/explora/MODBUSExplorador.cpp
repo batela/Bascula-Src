@@ -9,6 +9,7 @@
 #include "IOEnlace.h"
 
 namespace container {
+
 extern log4cpp::Category &log;
 
 void* lectorModbus (void * explorador){
@@ -55,6 +56,9 @@ MODBUSExplorador::MODBUSExplorador(Enlace* e, Puerto* p,string file) : Explorado
 	Abrir();
 	cfg = NULL;
 	int lanzar = 0 ;
+	thread_mutex = PTHREAD_MUTEX_INITIALIZER;
+	//ActualizaEstadoCom(false);
+
 	string ficheroCfg= Env::getInstance()->GetValue("dxconfig");
 	if (ConfigReadFile(file.data(), &cfg) != CONFIG_OK) {
 		log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", ficheroCfg.data());
@@ -67,7 +71,7 @@ MODBUSExplorador::MODBUSExplorador(Enlace* e, Puerto* p,string file) : Explorado
 			LanzarExplorador();
 		}
 	}
-	thread_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 }
 /**
  *
@@ -76,6 +80,8 @@ MODBUSExplorador::MODBUSExplorador(vector<Enlace*> e, Puerto* p,string file) : E
   Abrir();
   cfg = NULL;
   int lanzar = 0 ;
+  //ActualizaEstadoCom(false);
+  thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   if (ConfigReadFile(file.data(), &cfg) != CONFIG_OK) {
     log.error("%s: %s %s",__FILE__, "Error leyendo fichero de confguracion: ", file.data());
@@ -88,7 +94,7 @@ MODBUSExplorador::MODBUSExplorador(vector<Enlace*> e, Puerto* p,string file) : E
       LanzarExplorador();
     }
   }
-  thread_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 }
 /***
  *
@@ -126,6 +132,7 @@ int MODBUSExplorador::ExplorarBus (){
   for(std::vector<Enlace*>::iterator it = getEnlaces()->begin(); it != getEnlaces()->end(); ++it) {
     int dirMB= atoi ((*it)->getItemCfg("equipo","dir").data());
     int kc = 0;
+    enlace = (Enlace *)*it;
     ((MODBUSPuerto*)getPuerto())->setAddress(dirMB);
     //Entradas digitales
     if ((kc=((Enlace*)*it)->getItemCnt("0x01"))>0){
@@ -184,7 +191,7 @@ void MODBUSExplorador::ExploraEquipo() {
 		LeerHoldingRegisters(kc);
 	}
 	if ((kc=ConfigGetKeyCount(cfg,"0x03"))>0){
-		//LeerInputRegisters(kc);
+		LeerInputRegisters(kc);
 	}
 }
 /***
@@ -209,11 +216,14 @@ int  MODBUSExplorador::LeerRegistros(int kc,int codigo, Enlace *enlace)
     inicio = atoi (enlace->getItemCfg(cfItem,kini).data());
     bytes = atoi (enlace->getItemCfg(cfItem,kcou).data());
     log.debug("%s: %s %d %d %d",__FILE__, "Lanzando lectura ModBUS:", codigo,inicio,bytes);
+    memset (buffer,0,256);
     if (((MODBUSPuerto*)getPuerto())->leer(codigo,inicio,bytes,buffer) <= 0){
       enlace->trataError();
+      ActualizaEstadoCom(true);
     }
     else {
       enlace->analizaTrama(buffer,i);
+      ActualizaEstadoCom(false);
     }
   }
   pthread_mutex_unlock( &thread_mutex );
@@ -243,9 +253,11 @@ void MODBUSExplorador::LeerHoldingRegisters(int kc) {
 		ConfigReadInt(cfg,"0x04",kcou,&bytes,0);
 		if (((MODBUSPuerto*)getPuerto())->leer(0x04,inicio,bytes,buffer) <= 0){
 		  (getEnlace())->trataError();
+		  ActualizaEstadoCom(true);
 		}
 		else {
 		  (getEnlace())->analizaTrama(buffer,i);
+		  ActualizaEstadoCom(false);
 		}
 	}
 	pthread_mutex_unlock( &thread_mutex );
@@ -270,8 +282,14 @@ void MODBUSExplorador::LeerInputRegisters(int kc) {
 		sprintf (kcou,"cou%d",i);
 		ConfigReadInt(cfg,"0x03",kini,&inicio,0);
 		ConfigReadInt(cfg,"0x03",kcou,&bytes,0);
-		if (((MODBUSPuerto*)getPuerto())->leer(0x03,inicio,bytes,buffer) <= 0) memset (buffer,255,bytes);
-		(getEnlace())->analizaTrama(buffer);
+		if (((MODBUSPuerto*)getPuerto())->leer(0x03,inicio,bytes,buffer) <= 0){
+		  (getEnlace())->trataError();
+		  ActualizaEstadoCom(true);
+		}
+		else {
+		  (getEnlace())->analizaTrama(buffer,i);
+		  ActualizaEstadoCom(false);
+		}
 
 	}
 	pthread_mutex_unlock( &thread_mutex );

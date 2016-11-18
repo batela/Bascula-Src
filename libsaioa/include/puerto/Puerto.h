@@ -16,7 +16,7 @@ namespace container {
 class Puerto {
 
 public:
-	enum PORT_TYPE {RS232, I2C,TCPIP} ;
+	enum PORT_TYPE {RS232, I2C,TCPIP,UARTCAN} ;
 	Puerto(string a, PORT_TYPE b );
 	virtual ~Puerto();
 

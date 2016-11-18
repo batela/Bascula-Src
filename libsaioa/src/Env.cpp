@@ -65,6 +65,7 @@ void Env::ReadDB()
    if (db.Open()==true){
      db.ReadConfig(configValues);
    }//if
+   db.Close();
 }
 
 string Env::GetValue (string key){

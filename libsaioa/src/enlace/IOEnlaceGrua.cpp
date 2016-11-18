@@ -43,5 +43,21 @@ namespace container {
 		return 0;
 	}
 
+	int IOEnlaceGrua::trataError (){
+	    log.debug("%s: %s",__FILE__, "Comienza funcion Trata Error");
+
+	    grua.setIo0(0);
+	    grua.setIo1(0);
+	    grua.setIo2(0);
+	    grua.setIo3(0);
+	    grua.setIo4(0);
+	    grua.setIo5(0);
+	    grua.setIo6(0);
+	    grua.setIo7(0);
+
+	    log.debug("%s: %s",__FILE__, "Comienza funcion Trata Error");
+	    return 0;
+	  }
+
 
 } /* namespace container */

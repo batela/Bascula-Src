@@ -67,6 +67,7 @@ void * PesaContainerRadio (void * enlace){
 
   DBPesaje db("/home/batela/bascula/db/kemen.db");
   int pesajesCorrectos = atoi(Env::getInstance()->GetValue("pesajescorrectos").data());
+  string idgrua = Env::getInstance()->GetValue("idgrua");
   int pesajes     = 0 ;
   float pesoMedio =0;
   int pesoMaximo  =0;
@@ -120,14 +121,18 @@ void * PesaContainerRadio (void * enlace){
 
       pesajeHecho = true;
       ((DX80Enlace*)ex)->getDX()->setIsFijo(true);
-      int hayAlarma = ((DX80Enlace*)ex)->getDX()->CalculaAlarmas();
+      ((DX80Enlace*)ex)->getDX()->CalculaAlarmas();
       //Si el peso medido es inferior a pesominimo se entiende que es una operación
       // en vacio. No se guarda
       if (pesoMedio > pesoMinimo){
         db.Open();
         db.InsertData(1,pesoMedio);
         db.Close();
-        tosEx->EscribeTramaTOS(true,"MT02",pesoMedio);
+        if (pesoMedio >= 1500)
+          tosEx->EscribeTramaTOS(true,idgrua,pesoMedio);
+        else
+          log.warn("%s: %s %d",__FILE__, "Peso excesivamente bajo: ",pesoMedio);
+
       }
     }
 
@@ -139,24 +144,39 @@ void * PesaContainerRadio (void * enlace){
 /**
  *
  */
-void * CalculaOffSetPesada (void * exBascula)
+//void * CalculaOffSetPesada (void * exBascula)
+//{
+//   //Desactivado de momento
+//   MODBUSExplorador* ex = (MODBUSExplorador *) exBascula;
+//
+//   struct timespec tim, tim2;
+//   tim.tv_sec  = 0;
+//   tim.tv_nsec = 500 * 1000000L; //en milisegundos
+//   while (true){
+//     tim.tv_nsec = 100 * 1000000L;
+//     log.debug("%s: %s",__FILE__, "Esperando final de pesada");
+//     while (pesando!=true ){
+//       sleep(2); //Evaluamos el offset cada dos segundos
+//     }
+//     //Esperamos por defecto 100ms
+//     nanosleep(&tim , &tim2);
+//   }
+//   return 0;
+//}
+
+void * EvaluaAlarmas (void * enlace)
 {
    //Desactivado de momento
-   MODBUSExplorador* ex = (MODBUSExplorador *) exBascula;
-
-   struct timespec tim, tim2;
-   tim.tv_sec  = 0;
-   tim.tv_nsec = 500 * 1000000L; //en milisegundos
-   while (true){
-     tim.tv_nsec = 100 * 1000000L;
-     log.debug("%s: %s",__FILE__, "Esperando final de pesada");
-     while (pesando!=true ){
-       sleep(2); //Evaluamos el offset cada dos segundos
-     }
-     //Esperamos por defecto 100ms
-     nanosleep(&tim , &tim2);
-   }
-   return 0;
+  DX80Enlace* ex = (DX80Enlace *) enlace;
+  struct timespec tim, tim2;
+  tim.tv_sec  = 0;
+  tim.tv_nsec = 500 * 1000000L; //en milisegundos
+  while (true){
+    log.debug("%s: %s",__FILE__, "Esperamos a calcular alarmas..");
+    ((DX80Enlace*)ex)->getDX()->CalculaAlarmas();
+    nanosleep(&tim , &tim2);
+  }
+  return 0;
 }
 /**
  *
@@ -271,6 +291,7 @@ int main(int argc, char **argv) {
 	pthread_t idThPesaje;
 	pthread_t idThAlmacenaPesada;
   pthread_t idThCalibrado;
+  pthread_t idThAlarmas;
 
 	//log4cpp::PropertyConfigurator::configure( Env::getInstance("/home/batela/bascula/cnf/bascula.cnf")->GetValue("logproperties") );
 	log4cpp::PropertyConfigurator::configure( Env::getInstance()->GetValue("logproperties") );
@@ -283,6 +304,8 @@ int main(int argc, char **argv) {
 	struct timespec tim, tim2;
 	tim.tv_sec = 0;
 	tim.tv_nsec = atoi(Env::getInstance()->GetValue("ioperiod").data()) * 1000000L;
+
+	int indiceCelula = atoi(Env::getInstance()->GetValue("activacelula1").data()) - 1;
 
   int isCarro = 0;
 	int isPalpa = 0;
@@ -324,32 +347,30 @@ int main(int argc, char **argv) {
 	mbEnlacesP1.push_back(ioGrua);
 	MODBUSExplorador *exGarra = new MODBUSExplorador (mbEnlacesP1,moxaPort,"/home/batela/bascula/cnf/mbp1.cnf");
 
-	if (atoi(Env::getInstance()->GetValue("usadisplay").data())>0){
-		Env::getInstance()->GetValue("puertobascula");
-		int baudios 		= atoi(Env::getInstance()->GetValue("baudiosbascula").data());
-		int bitsdatos 	= atoi(Env::getInstance()->GetValue("bitsbascula").data());
-		int bitsparada 	= atoi(Env::getInstance()->GetValue("bitsparadabascula").data());
-		RS232Puerto *bsclPort = new RS232Puerto(Env::getInstance()->GetValue("puertobascula"), baudios,bitsdatos,0,bitsparada);
-		Explorador 	*exBSCL		= new Explorador (bscl,bsclPort,true);
-		//pthread_create( &idThPesaje, NULL, PesaContainer,exBSCL);
-	}
-	else{
-		dx80->Configure("/home/batela/bascula/cnf/dx80modbus.cnf"); //Necesario par cargar parametros
-		mbEnlacesP2.push_back(dx80);
-		//mbEnlacesP2.push_back(io); //Solo pruebas con simulador
-		MODBUSPuerto *dxPort = new MODBUSPuerto(Env::getInstance()->GetValue("puertodx80"), 19200);
 
-		//MODBUSExplorador 	*exBSCL		= new MODBUSExplorador (dx80,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
-		MODBUSExplorador  *exBSCL   = new MODBUSExplorador (mbEnlacesP2,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
-		pthread_create( &idThPesaje, NULL, PesaContainerRadio,dx80);
-	}
+	dx80->Configure("/home/batela/bascula/cnf/dx80modbus.cnf"); //Necesario par cargar parametros
+	mbEnlacesP2.push_back(dx80);
+	//mbEnlacesP2.push_back(io); //Solo pruebas con simulador
+  int baudiosDX80  = atoi(Env::getInstance()->GetValue("baudiosdx80").data());
+	MODBUSPuerto *dxPort = new MODBUSPuerto(Env::getInstance()->GetValue("puertodx80"), baudiosDX80);
+
+	//MODBUSExplorador 	*exBSCL		= new MODBUSExplorador (dx80,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
+	//<MODBUSExplorador  *exBSCL   = new MODBUSExplorador (mbEnlacesP2,dxPort,"/home/batela/bascula/cnf/radiocom.cnf");
+	MODBUSExplorador  *exBSCL   = new MODBUSExplorador (mbEnlacesP2,dxPort,"/home/batela/bascula/cnf/dx80modbus.cnf");
+	pthread_create( &idThPesaje, NULL, PesaContainerRadio,dx80);
+
 	//Finalmente lanzamos el thread http
 	pthread_create( &idThLector, NULL, httpservermanager,NULL);
   pthread_create( &idThAlmacenaPesada, NULL, AlmacenaPesada,dx80);
-  //pthread_create( &idThCalibrado, NULL, CalibradoCelulas,exGarra);
+  //pthread_create( &idThAlarmas, NULL, EvaluaAlarmas,exGarra);
 
   int dirMB = atoi (mbEnlacesP1[0]->getItemCfg("equipo","dir").data());
-  int ioAlarma = atoi(Env::getInstance()->GetValue("ioAlarma").data());
+  int ioAlarma = atoi(Env::getInstance()->GetValue("ioalarma").data());
+
+//  Se pone la salida a 1, es decir no hay alarma.
+  exGarra->EscribeCoil(dirMB,ioAlarma,1);
+
+  while (true) sleep (1);
 
 	estado = estadoAnterior = ESPERA_CARRO_ENVIA;
 	while (true){
@@ -375,9 +396,9 @@ int main(int argc, char **argv) {
 			log.info("%s: %s: %d-%d-%d-%d-%d-%d-%d-%d",__FILE__, "IO en Grua: ", isIOg0, isIOg1, isIOg2, isIOg3, isIOg4, isIOg5, isIOg6, isIOg7);
 
 			if (dx80->getDX()->getHayAlarma())
-			  exGarra->EscribeCoil(dirMB,ioAlarma,1);
+			  exGarra->EscribeCoil(dirMB,ioAlarma,0); // La alarma es negada. Es decir si todo OK 1 , si alarma 0
 			else
-			  exGarra->EscribeCoil(dirMB,ioAlarma,0);
+			  exGarra->EscribeCoil(dirMB,ioAlarma,1);
 
 			switch (estado){
 				case ESPERA_CARRO_ENVIA:

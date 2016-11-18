@@ -42,10 +42,12 @@ public:
 	vector <Enlace*> enlaces;
 protected:
 	pthread_t idThLector;
+	Enlace* enlace;
+	void ActualizaEstadoCom(int res);
 
 private:
   //vector <Enlace*> enlaces;
-	Enlace* enlace;
+	int contadorFallos = 0 ;
 	Puerto* puerto;
 
 	//thread first;     // spawn new thread that calls foo()

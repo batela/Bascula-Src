@@ -24,7 +24,7 @@ public:
 	virtual int analizaTrama(char * buffer,int tipo = 0){return 0;}
 	virtual int trataError(){return 0;};
 	string getItemCfg (string section , string a) ;
-	int getItemCnt (string section) {ConfigGetKeyCount(this->cfg,section.data());}
+	int getItemCnt (string section) {return (ConfigGetKeyCount(this->cfg,section.data()));}
 
 	virtual int VerificaTrama (char buffer[]){return 0;};
 	void SetStartByte	(char a) { startByte = a;} ;
@@ -34,14 +34,17 @@ public:
 
 	char txbuffer[256];
 	char rxbuffer[256];
-
+	bool GetIsFalloCom ()        {return isFalloCom ;};
+	void SetIsFalloCom (int a)        {isFalloCom = a ;};
 protected:
+
 	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) ;
 	std::vector<std::string> split(const std::string &s, char delim);
 	Config *cfg;
 private:
 	char startByte;
 	char endByte;
+	bool isFalloCom ;
 
 };
 
